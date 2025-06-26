@@ -139,7 +139,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
               cursor: pointer;
             }
             .add-btn:hover {
-              background-color: #165c30;
+              background-color: #169c30;
             }
 
             .snippet {

@@ -3,6 +3,7 @@ import { ensureAuthenticated, getToken, signIn, storeToken } from "./auth";
 import { createSnippet, listSnippets } from "./snippets";
 import { SnippitSidebarProvider } from "./sidebar";
 import { logger } from "./lib/logger";
+import { CreateSnippetFormPanel } from "./CreateSnippetFormPannel";
 
 export function activate(context: vscode.ExtensionContext) {
   const viewProvider = new SnippitSidebarProvider(context);
@@ -45,44 +46,50 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  context.subscriptions.push(
-    vscode.commands.registerCommand("snippit.createSnippet", async () => {
-      if (!(await ensureAuthenticated(context))) {
-        return;
-      }
-      const editor = vscode.window.activeTextEditor;
-      const selected = editor?.document.getText(editor.selection) || "";
-      const title = await vscode.window.showInputBox({
-        prompt: "Snippet title",
-      });
-      if (!title) {
-        return;
-      }
-      const description = await vscode.window.showInputBox({
-        prompt: "Description (optional)",
-      });
-      const language = editor?.document.languageId || "plaintext";
-      const isPublic = await vscode.window
-        .showQuickPick(["Public", "Private"], {
-          placeHolder: "Visibility",
-        })
-        .then((x) => x === "Public");
+  // context.subscriptions.push(
+  //   vscode.commands.registerCommand("snippit.createSnippet", async () => {
+  //     if (!(await ensureAuthenticated(context))) {
+  //       return;
+  //     }
+  //     const editor = vscode.window.activeTextEditor;
+  //     const selected = editor?.document.getText(editor.selection) || "";
+  //     const title = await vscode.window.showInputBox({
+  //       prompt: "Snippet title",
+  //     });
+  //     if (!title) {
+  //       return;
+  //     }
+  //     const description = await vscode.window.showInputBox({
+  //       prompt: "Description (optional)",
+  //     });
+  //     const language = editor?.document.languageId || "plaintext";
+  //     const isPublic = await vscode.window
+  //       .showQuickPick(["Public", "Private"], {
+  //         placeHolder: "Visibility",
+  //       })
+  //       .then((x) => x === "Public");
 
-      try {
-        await createSnippet({
-          title,
-          description: description || "",
-          code: selected,
-          language,
-          isPublic,
-        });
-        vscode.window.showInformationMessage(`Snippet "${title}" created!`);
-        viewProvider.refresh();
-      } catch (err: any) {
-        vscode.window.showErrorMessage(
-          "Failed to create snippet: " + err.message
-        );
-      }
+  //     try {
+  //       await createSnippet({
+  //         title,
+  //         description: description || "",
+  //         code: selected,
+  //         language,
+  //         isPublic,
+  //       });
+  //       vscode.window.showInformationMessage(`Snippet "${title}" created!`);
+  //       viewProvider.refresh();
+  //     } catch (err: any) {
+  //       vscode.window.showErrorMessage(
+  //         "Failed to create snippet: " + err.message
+  //       );
+  //     }
+  //   })
+  // );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("snippit.createSnippet", () => {
+      CreateSnippetFormPanel.createOrShow(context);
     })
   );
 
