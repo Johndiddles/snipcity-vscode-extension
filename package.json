@@ -1,0 +1,81 @@
+{
+  "name": "snippit-vscode",
+  "publisher": "johndiddles",
+  "displayName": "Snippit",
+  "description": "Create, search, view and copy Snippit code snippets from VS Code",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onUri",
+    "onView:snippit.sidebarView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "snippit.signIn",
+        "title": "Snippit: Sign In"
+      },
+      {
+        "command": "snippit.createSnippet",
+        "title": "Snippit: Create Snippet"
+      },
+      {
+        "command": "snippit.viewSnippets",
+        "title": "Snippit: View Snippets"
+      },
+      {
+        "command": "snippit.forceOpenSidebar",
+        "title": "Snippit: Force Open Sidebar"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "snippit",
+          "title": "Snippit",
+          "icon": "assets/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "snippit": [
+        {
+          "id": "snippit.sidebarView",
+          "name": "My Snippets",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Snippit Settings",
+      "properties": {
+        "snippitToken": {
+          "type": "string",
+          "default": "",
+          "description": "Personal access token used by Snippit VS Code extension for authentication."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/test-electron": "^2.3.0"
+  },
+  "dependencies": {
+    "axios": "^1.10.0"
+  }
+}

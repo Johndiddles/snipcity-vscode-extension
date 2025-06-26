@@ -1,0 +1,26 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background rounded rectangle -->
+  <rect x="1" y="1" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1" opacity="0.8"/>
+  
+  <!-- Code lines representation -->
+  <g opacity="0.9">
+    <!-- Line 1 - shorter line -->
+    <rect x="3" y="3.5" width="6" height="1" rx="0.5" fill="currentColor"/>
+    
+    <!-- Line 2 - longer line with indentation -->
+    <rect x="4" y="5.5" width="8" height="1" rx="0.5" fill="currentColor"/>
+    
+    <!-- Line 3 - medium line with more indentation -->
+    <rect x="5" y="7.5" width="5" height="1" rx="0.5" fill="currentColor"/>
+    
+    <!-- Line 4 - shorter line -->
+    <rect x="3" y="9.5" width="4" height="1" rx="0.5" fill="currentColor"/>
+  </g>
+  
+  <!-- Snippet/collection indicator - small dots in corner -->
+  <g opacity="0.7">
+    <circle cx="12" cy="4" r="0.8" fill="currentColor"/>
+    <circle cx="12" cy="6" r="0.8" fill="currentColor"/>
+    <circle cx="12" cy="8" r="0.8" fill="currentColor"/>
+  </g>
+</svg>
