@@ -18,7 +18,7 @@ interface Snippet {
 export async function createSnippet(data: SnippetPayload) {
   const token = vscode.workspace.getConfiguration().get<string>("snippitToken");
   const response = await axios.post(
-    "https://snippit-mu.vercel.app/api/snippets",
+    "http://localhost:3000/api/vscode/snippets",
     data,
     {
       headers: {
@@ -26,13 +26,15 @@ export async function createSnippet(data: SnippetPayload) {
       },
     }
   );
+
+  console.log({ response: response.data });
   return response.data;
 }
 
 export async function listSnippets(page = 1): Promise<Snippet[]> {
   const token = vscode.workspace.getConfiguration().get<string>("snippitToken");
   const response = await axios.get(
-    `https://snippit-mu.vercel.app/api/snippets?page=${page}&limit=20`,
+    `http://localhost:3000/api/vscode/snippets?page=${page}&limit=20`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

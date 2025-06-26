@@ -100,6 +100,12 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
+    vscode.commands.registerCommand("snippit.refreshSidebar", () => {
+      viewProvider.refresh();
+    })
+  );
+
+  context.subscriptions.push(
     vscode.commands.registerCommand("snippit.copySnippet", async (snippet) => {
       const token = await getToken(context);
       if (!token) {
