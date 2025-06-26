@@ -18,9 +18,7 @@ export async function signIn() {
   }
 }
 
-export async function getToken(
-  context: vscode.ExtensionContext
-): Promise<string | null> {
+export async function getToken(): Promise<string | null> {
   return (
     (await vscode.workspace.getConfiguration().get<string>(TOKEN_KEY)) || null
   );
@@ -29,7 +27,7 @@ export async function getToken(
 export async function ensureAuthenticated(
   context: vscode.ExtensionContext
 ): Promise<boolean> {
-  const token = await getToken(context);
+  const token = await getToken();
   if (!token) {
     vscode.window.showErrorMessage(
       'Not signed in to Snippit. Please run "Snippit: Sign In".'
@@ -47,4 +45,16 @@ export async function storeToken(
   await vscode.workspace
     .getConfiguration()
     .update("snippitToken", token, vscode.ConfigurationTarget.Global);
+}
+
+export async function isAuthenticated(): Promise<boolean> {
+  const token = await getToken();
+  return !!token;
+}
+
+export async function signOut() {
+  await vscode.workspace
+    .getConfiguration()
+    .update(TOKEN_KEY, undefined, vscode.ConfigurationTarget.Global);
+  vscode.window.showInformationMessage("Snippit: Signed out.");
 }

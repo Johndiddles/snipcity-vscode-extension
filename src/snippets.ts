@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as vscode from "vscode";
+import { logger } from "./lib/logger";
 
 interface SnippetPayload {
   title: string;
@@ -27,7 +28,7 @@ export async function createSnippet(data: SnippetPayload) {
     }
   );
 
-  console.log({ response: response.data });
+  logger({ response: response.data });
   return response.data;
 }
 

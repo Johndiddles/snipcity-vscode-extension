@@ -67,7 +67,7 @@ export class CreateSnippetFormPanel {
 
         try {
           const response = await createSnippet(message.data);
-          console.log({ response });
+          logger({ response });
           vscode.window.showInformationMessage(
             `Snippet "${message.data.title}" created!`
           );
