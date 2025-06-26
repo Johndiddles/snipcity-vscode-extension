@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { listSnippets } from "./snippets";
 import { logger } from "./lib/logger";
 import { isAuthenticated, signIn, signOut } from "./auth";
+import { SnippetDetailsPanel } from "./snippetDetailsPanel";
 
 export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "snippit.sidebarView";
@@ -26,11 +27,12 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           vscode.window.showInformationMessage("Code copied to clipboard");
           break;
         case "openSnippet":
-          const doc = await vscode.workspace.openTextDocument({
-            content: message.code,
-            language: message.language || "plaintext",
-          });
-          await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
+          SnippetDetailsPanel.show(message.snippet);
+          // const doc = await vscode.workspace.openTextDocument({
+          //   content: message.code,
+          //   language: message.language || "plaintext",
+          // });
+          // await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
           break;
         case "addSnippet":
           vscode.commands.executeCommand("snippit.createSnippet");
@@ -275,7 +277,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
                   <div class="code-preview">\${codePreview}</div>
                   <div class="buttons">
                     <button class="copy-btn" data-command="copy" data-index="\${index}">Copy</button>
-                    <button class="view-btn" data-command="view" data-index="\${index}">View</button>
+                    <button class="view-btn" data-command="view" data-index="\${index}">View full code</button>
                   </div>
                 </div>
               \`;
@@ -292,8 +294,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
                   } else if (command === "view") {
                     vscode.postMessage({
                       command: "openSnippet",
-                      code: snippet.code,
-                      language: snippet.language || "plaintext"
+                      snippet,
                     });
                   }
                 });
