@@ -10,38 +10,34 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
 
   public resolveWebviewView(
     view: vscode.WebviewView,
-    context: vscode.WebviewViewResolveContext,
+    _context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
   ) {
     logger("SnippitSidebarProvider: resolveWebviewView called");
 
     this._view = view;
-    view.webview.options = {
-      enableScripts: true,
-    };
+    view.webview.options = { enableScripts: true };
 
     view.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
-        case "copy": {
+        case "copy":
           await vscode.env.clipboard.writeText(message.code);
           vscode.window.showInformationMessage("Code copied to clipboard");
           break;
-        }
-        case "openSnippet": {
-          logger("opening snippet");
+        case "openSnippet":
           const doc = await vscode.workspace.openTextDocument({
             content: message.code,
             language: message.language || "plaintext",
           });
           await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
           break;
-        }
+        case "addSnippet":
+          vscode.commands.executeCommand("snippit.createSnippet");
+          break;
       }
     });
 
-    // show skeleton loader first
     this._view.webview.html = this.getSkeletonHtml();
-
     this.renderSnippets();
   }
 
@@ -90,29 +86,14 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
               width: 90%;
             }
             @keyframes pulse {
-              0% {
-                opacity: 1;
-              }
-              50% {
-                opacity: 0.5;
-              }
-              100% {
-                opacity: 1;
-              }
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.5; }
             }
           </style>
         </head>
         <body>
-          <div class="skeleton">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-          </div>
-          <div class="skeleton">
-            <div class="skeleton-title"></div>
-            <div class="skeleton-line"></div>
-            <div class="skeleton-line"></div>
-          </div>
+          <div class="skeleton"><div class="skeleton-title"></div><div class="skeleton-line"></div></div>
+          <div class="skeleton"><div class="skeleton-title"></div><div class="skeleton-line"></div></div>
         </body>
       </html>
     `;
@@ -120,6 +101,8 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
 
   private getHtml(snippets: any[]): string {
     logger("SnippitSidebarProvider: generating HTML");
+
+    const encodedSnippets = JSON.stringify(snippets);
 
     return `
       <!DOCTYPE html>
@@ -134,6 +117,31 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
               background-color: #1e1e1e;
               color: #d4d4d4;
             }
+            .toolbar {
+              display: flex;
+              gap: 8px;
+              margin-bottom: 1em;
+            }
+            input[type="text"] {
+              flex: 1;
+              padding: 6px;
+              border-radius: 4px;
+              border: 1px solid #555;
+              background: #2e2e2e;
+              color: white;
+            }
+            .add-btn {
+              background-color: #16a249;
+              color: white;
+              border: none;
+              padding: 6px 12px;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+            .add-btn:hover {
+              background-color: #165c30;
+            }
+
             .snippet {
               padding: 0.75em;
               margin-bottom: 1em;
@@ -207,73 +215,88 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           </style>
         </head>
         <body>
-          ${snippets
-            .map((snippet, index) => {
-              const codePreview = snippet.code
-                .split("\n")
-                .slice(0, 5)
-                .join("\n")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
+          <div class="toolbar">
+            <input type="text" id="search" placeholder="Search snippets..." />
+            <button class="add-btn" id="addSnippet">+ Add</button>
+          </div>
 
-              const fullCode = snippet.code
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-
-              const tagsArray: string[] =
-                typeof snippet.tags === "string"
-                  ? snippet.tags
-                      .split(",")
-                      .map((tag: string) => tag.trim())
-                      .filter(Boolean)
-                  : [];
-
-              return `
-                <div class="snippet" title="${fullCode}">
-                  <div class="title">${snippet.title}</div>
-                  <div class="author">by ${
-                    snippet.author?.username || "Unknown"
-                  }</div>
-                  <div class="language">Language: ${
-                    snippet.language || "plaintext"
-                  }</div>
-                  <div class="tags">
-                    ${tagsArray
-                      .map((tag) => `<span class="tag">${tag}</span>`)
-                      .join("")}
-                  </div>
-                  <div class="description">${snippet.description || ""}</div>
-                  <div class="code-preview">${codePreview}</div>
-                  <div class="buttons">
-                    <button class="copy-btn" data-command="copy" data-index="${index}">Copy</button>
-                    <button class="view-btn" data-command="view" data-index="${index}">View</button>
-                  </div>
-                </div>
-              `;
-            })
-            .join("")}
+          <div id="snippet-list"></div>
 
           <script>
             const vscode = acquireVsCodeApi();
-            const snippets = ${JSON.stringify(snippets)};
+            const snippets = ${encodedSnippets};
 
-            document.querySelectorAll("button").forEach(button => {
-              button.addEventListener("click", () => {
-                const command = button.getAttribute("data-command");
-                const index = button.getAttribute("data-index");
-                const snippet = snippets[index];
+            const container = document.getElementById("snippet-list");
+            const searchInput = document.getElementById("search");
 
-                if (command === "copy") {
-                  vscode.postMessage({ command: "copy", code: snippet.code });
-                } else if (command === "view") {
-                  vscode.postMessage({
-                    command: "openSnippet",
-                    code: snippet.code,
-                    language: snippet.language || "plaintext"
+            function render(filtered) {
+              container.innerHTML = filtered.map((snippet, index) => {
+                const codePreview = snippet.code
+                  .split("\\n").slice(0, 5).join("\\n")
+                  .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                const fullCode = snippet.code.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const tags = typeof snippet.tags === "string"
+                  ? snippet.tags.split(",").map(t => t.trim()).filter(Boolean)
+                  : [];
+
+                return \`
+                  <div class="snippet" title="\${fullCode}">
+                    <div class="title">\${snippet.title}</div>
+                    <div class="author">by \${snippet.author?.username || "Unknown"}</div>
+                    <div class="language">Language: \${snippet.language || "plaintext"}</div>
+                    <div class="tags">
+                      \${tags.map(tag => \`<span class="tag">\${tag}</span>\`).join("")}
+                    </div>
+                    <div class="description">\${snippet.description || ""}</div>
+                    <div class="code-preview">\${codePreview}</div>
+                    <div class="buttons">
+                      <button class="copy-btn" data-command="copy" data-index="\${index}">Copy</button>
+                      <button class="view-btn" data-command="view" data-index="\${index}">View</button>
+                    </div>
+                  </div>
+                \`;
+              }).join("");
+
+              container.querySelectorAll("button").forEach(btn => {
+                const command = btn.getAttribute("data-command");
+                const index = btn.getAttribute("data-index");
+                if (command && index !== null) {
+                  btn.addEventListener("click", () => {
+                    const snippet = filtered[index];
+                    if (command === "copy") {
+                      vscode.postMessage({ command: "copy", code: snippet.code });
+                    } else if (command === "view") {
+                      vscode.postMessage({
+                        command: "openSnippet",
+                        code: snippet.code,
+                        language: snippet.language || "plaintext"
+                      });
+                    }
                   });
                 }
               });
+            }
+
+            searchInput.addEventListener("input", () => {
+              const query = searchInput.value.toLowerCase();
+              const filtered = snippets.filter(s => {
+                return (
+                  s.title?.toLowerCase().includes(query) ||
+                  s.language?.toLowerCase().includes(query) ||
+                  s.description?.toLowerCase().includes(query) ||
+                  (typeof s.tags === "string" && s.tags.toLowerCase().includes(query))
+                );
+              });
+              render(filtered);
             });
+
+            document.getElementById("addSnippet").addEventListener("click", () => {
+              console.log("clicked add snippet");
+              vscode.postMessage({ command: "addSnippet" });
+            });
+
+            render(snippets);
           </script>
         </body>
       </html>
