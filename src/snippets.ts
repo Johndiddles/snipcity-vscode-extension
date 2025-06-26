@@ -17,7 +17,9 @@ interface Snippet {
 }
 
 export async function createSnippet(data: SnippetPayload) {
-  const token = vscode.workspace.getConfiguration().get<string>("snippitToken");
+  const token = vscode.workspace
+    .getConfiguration()
+    .get<string>("snipCityToken");
   const response = await axios.post(
     "http://localhost:3000/api/vscode/snippets",
     data,
@@ -33,7 +35,9 @@ export async function createSnippet(data: SnippetPayload) {
 }
 
 export async function listSnippets(page = 1): Promise<Snippet[]> {
-  const token = vscode.workspace.getConfiguration().get<string>("snippitToken");
+  const token = vscode.workspace
+    .getConfiguration()
+    .get<string>("snipCityToken");
   const response = await axios.get(
     `http://localhost:3000/api/vscode/snippets?page=${page}&limit=20`,
     {

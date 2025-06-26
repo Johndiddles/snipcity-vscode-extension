@@ -1,8 +1,8 @@
 {
   "name": "snippit-vscode",
   "publisher": "johndiddles",
-  "displayName": "Snippit",
-  "description": "Create, search, view and copy Snippit code snippets from VS Code",
+  "displayName": "SnipCity",
+  "description": "Create, search, view and share code snippets from VS Code",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.80.0"
@@ -19,32 +19,32 @@
     "commands": [
       {
         "command": "snippit.signIn",
-        "title": "Snippit: Sign In"
+        "title": "SnipCity: Sign In"
       },
       {
         "command": "snippit.createSnippet",
-        "title": "Snippit: Create Snippet"
+        "title": "SnipCity: Create Snippet"
       },
       {
         "command": "snippit.viewSnippets",
-        "title": "Snippit: View Snippets"
+        "title": "SnipCity: View Snippets"
       },
       {
         "command": "snippit.forceOpenSidebar",
-        "title": "Snippit: Force Open Sidebar"
+        "title": "SnipCity: Force Open Sidebar"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "snippit",
-          "title": "Snippit",
+          "id": "snipCity",
+          "title": "SnipCity",
           "icon": "assets/icon.svg"
         }
       ]
     },
     "views": {
-      "snippit": [
+      "snipCity": [
         {
           "id": "snippit.sidebarView",
           "name": "My Snippets",
@@ -54,12 +54,12 @@
     },
     "configuration": {
       "type": "object",
-      "title": "Snippit Settings",
+      "title": "SnipCity Settings",
       "properties": {
-        "snippitToken": {
+        "snipCityToken": {
           "type": "string",
           "default": "",
-          "description": "Personal access token used by Snippit VS Code extension for authentication."
+          "description": "Personal access token used by SnipCity VS Code extension for authentication."
         }
       }
     }

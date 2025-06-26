@@ -3,7 +3,7 @@ import { logger } from "./lib/logger";
 
 const LOGIN_URL = "http://localhost:3000/signin/vscode?from=vscode";
 // const LOGIN_URL = "https://snippit-mu.vercel.app/extension-login?from=vscode";
-const TOKEN_KEY = "snippitToken";
+const TOKEN_KEY = "snipCityToken";
 
 export async function signIn() {
   vscode.env.openExternal(vscode.Uri.parse(LOGIN_URL));
@@ -14,7 +14,7 @@ export async function signIn() {
     await vscode.workspace
       .getConfiguration()
       .update(TOKEN_KEY, token, vscode.ConfigurationTarget.Global);
-    vscode.window.showInformationMessage("Snippit: Signed in successfully.");
+    vscode.window.showInformationMessage("SnipCity: Signed in successfully.");
   }
 }
 
@@ -30,7 +30,7 @@ export async function ensureAuthenticated(
   const token = await getToken();
   if (!token) {
     vscode.window.showErrorMessage(
-      'Not signed in to Snippit. Please run "Snippit: Sign In".'
+      'Not signed in to Snippit. Please run "SnipCity: Sign In".'
     );
     return false;
   }
@@ -44,7 +44,7 @@ export async function storeToken(
   logger({ token });
   await vscode.workspace
     .getConfiguration()
-    .update("snippitToken", token, vscode.ConfigurationTarget.Global);
+    .update("snipCityToken", token, vscode.ConfigurationTarget.Global);
 }
 
 export async function isAuthenticated(): Promise<boolean> {
@@ -56,5 +56,5 @@ export async function signOut() {
   await vscode.workspace
     .getConfiguration()
     .update(TOKEN_KEY, undefined, vscode.ConfigurationTarget.Global);
-  vscode.window.showInformationMessage("Snippit: Signed out.");
+  vscode.window.showInformationMessage("SnipCity: Signed out.");
 }
