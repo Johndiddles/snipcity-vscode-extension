@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { getToken, signIn, storeToken } from "./auth";
 import { SnippitSidebarProvider } from "./sidebar";
 import { logger } from "./lib/logger";
-import { CreateSnippetFormPanel } from "./CreateSnippetFormPannel";
+import { CreateSnippetFormPanel } from "./CreateSnippetFormPanel";
 
 export function activate(context: vscode.ExtensionContext) {
   const viewProvider = new SnippitSidebarProvider(context);

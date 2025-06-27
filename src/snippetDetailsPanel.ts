@@ -16,6 +16,11 @@ export class SnippetDetailsPanel {
         vscode.env.clipboard.writeText(snippet.code);
         vscode.window.showInformationMessage("Code copied to clipboard");
       }
+
+      if (message.command === "viewOnWeb") {
+        const url = `https://snippit-mu.vercel.app/snippets/${snippet._id}`;
+        vscode.env.openExternal(vscode.Uri.parse(url));
+      }
     });
   }
 
@@ -78,6 +83,9 @@ export class SnippetDetailsPanel {
             }
             .actions {
               margin-top: 1em;
+              display: flex;
+              gap: 10px;
+              flex-wrap: wrap;
             }
             button {
               background: #007acc;
@@ -87,6 +95,9 @@ export class SnippetDetailsPanel {
               border-radius: 4px;
               cursor: pointer;
               font-size: 0.9em;
+            }
+            button:hover {
+              background-color: #005fa3;
             }
             .votes {
               margin-top: 0.5em;
@@ -106,14 +117,19 @@ export class SnippetDetailsPanel {
           <pre><code>${escapedCode}</code></pre>
           <div class="actions">
             <button onclick="copyCode()">📋 Copy Code</button>
+            <button onclick="viewOnWeb()">🌐 View on Web</button>
           </div>
           <div class="votes">👍 ${snippet.upvotes || 0} | 👎 ${
       snippet.downvotes || 0
     }</div>
+
           <script>
             const vscode = acquireVsCodeApi();
             function copyCode() {
               vscode.postMessage({ command: "copy" });
+            }
+            function viewOnWeb() {
+              vscode.postMessage({ command: "viewOnWeb" });
             }
           </script>
         </body>
