@@ -15,9 +15,7 @@ export class SnippetDetailsPanel {
       if (message.command === "copy") {
         vscode.env.clipboard.writeText(snippet.code);
         vscode.window.showInformationMessage("Code copied to clipboard");
-      }
-
-      if (message.command === "viewOnWeb") {
+      } else if (message.command === "viewOnWeb") {
         const url = `https://snippit-mu.vercel.app/snippets/${snippet._id}`;
         vscode.env.openExternal(vscode.Uri.parse(url));
       }
@@ -25,6 +23,26 @@ export class SnippetDetailsPanel {
   }
 
   private static getHtml(snippet: any): string {
+    const languageMap: Record<string, string> = {
+      js: "javascript",
+      ts: "typescript",
+      py: "python",
+      rb: "ruby",
+      html: "markup",
+      css: "css",
+      cpp: "cpp",
+      c: "c",
+      java: "java",
+      go: "go",
+      rs: "rust",
+      sh: "bash",
+      json: "json",
+      yml: "yaml",
+    };
+
+    const rawLang = snippet.language?.toLowerCase() || "plaintext";
+    const prismLang = languageMap[rawLang] || rawLang;
+
     const escapedCode = snippet.code
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
@@ -42,6 +60,7 @@ export class SnippetDetailsPanel {
       <html>
         <head>
           <meta charset="UTF-8" />
+          <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
           <style>
             body {
               font-family: sans-serif;
@@ -75,14 +94,12 @@ export class SnippetDetailsPanel {
               font-size: 0.8em;
             }
             pre {
-              background: #2e2e2e;
-              padding: 1em;
               border-radius: 6px;
               overflow-x: auto;
-              color: #f8f8f2;
+              margin-bottom: 1em;
+              font-size: 0.9em;
             }
             .actions {
-              margin-top: 1em;
               display: flex;
               gap: 10px;
               flex-wrap: wrap;
@@ -109,12 +126,12 @@ export class SnippetDetailsPanel {
           <div class="title">${snippet.title}</div>
           <div class="meta">by ${
             snippet.author?.username || "Unknown"
-          } | Language: ${snippet.language}</div>
+          } | Language: ${snippet.language || "plaintext"}</div>
           <div class="description">${snippet.description || ""}</div>
           <div class="tags">
             ${tags.map((tag) => `<div class="tag">${tag}</div>`).join("")}
           </div>
-          <pre><code>${escapedCode}</code></pre>
+          <pre><code class="language-${prismLang}">${escapedCode}</code></pre>
           <div class="actions">
             <button onclick="copyCode()">📋 Copy Code</button>
             <button onclick="viewOnWeb()">🌐 View on Web</button>
@@ -123,6 +140,8 @@ export class SnippetDetailsPanel {
       snippet.downvotes || 0
     }</div>
 
+          <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-${prismLang}.min.js"></script>
           <script>
             const vscode = acquireVsCodeApi();
             function copyCode() {
