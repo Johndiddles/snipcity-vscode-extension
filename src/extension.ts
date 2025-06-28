@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getToken, signIn, storeToken } from "./auth";
+import { getToken, signIn, storeToken, storeUserDetails } from "./auth";
 import { SnippitSidebarProvider } from "./sidebar";
 import { logger } from "./lib/logger";
 import { CreateSnippetFormPanel } from "./CreateSnippetFormPanel";
@@ -12,7 +12,21 @@ export function activate(context: vscode.ExtensionContext) {
         logger({ uriFromBrowser: uri });
         const params = new URLSearchParams(uri.query);
         const token = params.get("token");
-        if (token) {
+        const email = params.get("email");
+        const id = params.get("id");
+
+        logger({ token, email, id });
+        if (token && email && id) {
+          storeUserDetails({ token, email, id })
+            .then(() => {
+              vscode.window.showInformationMessage(
+                "Signed in to Snippit successfully."
+              );
+            })
+            .then(() => {
+              viewProvider.refresh();
+            });
+        } else if (token) {
           storeToken(context, token)
             .then(() => {
               vscode.window.showInformationMessage(

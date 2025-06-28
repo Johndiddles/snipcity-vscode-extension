@@ -60,6 +60,16 @@
           "type": "string",
           "default": "",
           "description": "Personal access token used by SnipCity VS Code extension for authentication."
+        },
+        "snipCityEmail": {
+          "type": "string",
+          "default": "",
+          "description": "Email address of the user."
+        },
+        "snipCityUserId": {
+          "type": "string",
+          "default": "",
+          "description": "User's ID."
         }
       }
     }
