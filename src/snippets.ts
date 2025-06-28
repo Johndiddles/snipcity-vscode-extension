@@ -34,6 +34,24 @@ export async function createSnippet(data: SnippetPayload) {
   return response.data;
 }
 
+export async function updateSnippet(id: string, data: SnippetPayload) {
+  const token = vscode.workspace
+    .getConfiguration()
+    .get<string>("snipCityToken");
+  const response = await axios.patch(
+    `http://localhost:3000/api/vscode/snippets/${id}`,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  logger({ response: response.data });
+  return response.data;
+}
+
 export async function listSnippets(page = 1): Promise<Snippet[]> {
   const token = vscode.workspace
     .getConfiguration()

@@ -1,7 +1,16 @@
 import * as vscode from "vscode";
+import { getUserDetails } from "./auth";
+import { EditSnippetFormPanel } from "./EditSnippetFormPanel";
+import { Snippet } from "./types/snippet";
 
 export class SnippetDetailsPanel {
-  public static show(snippet: any) {
+  public static async show(
+    snippet: Snippet,
+    extensionContext: vscode.ExtensionContext
+  ) {
+    const user = await getUserDetails();
+    const isOwner = user.id === snippet.author?._id;
+
     const panel = vscode.window.createWebviewPanel(
       "snippetDetails",
       snippet.title || "Snippet Details",
@@ -9,20 +18,40 @@ export class SnippetDetailsPanel {
       { enableScripts: true }
     );
 
-    panel.webview.html = SnippetDetailsPanel.getHtml(snippet);
+    panel.webview.html = SnippetDetailsPanel.getHtml(snippet, isOwner);
 
-    panel.webview.onDidReceiveMessage((message) => {
-      if (message.command === "copy") {
-        vscode.env.clipboard.writeText(snippet.code);
-        vscode.window.showInformationMessage("Code copied to clipboard");
-      } else if (message.command === "viewOnWeb") {
-        const url = `https://snippit-mu.vercel.app/snippets/${snippet._id}`;
-        vscode.env.openExternal(vscode.Uri.parse(url));
+    panel.webview.onDidReceiveMessage(async (message) => {
+      switch (message.command) {
+        case "copy":
+          vscode.env.clipboard.writeText(snippet.code);
+          vscode.window.showInformationMessage("Code copied to clipboard");
+          break;
+        case "viewOnWeb":
+          vscode.env.openExternal(
+            vscode.Uri.parse(
+              `https://snippit-mu.vercel.app/snippets/${snippet._id}`
+            )
+          );
+          break;
+        case "edit":
+          const user = await getUserDetails();
+          const isOwner =
+            user.id && snippet.author?._id && user.id === snippet.author._id;
+
+          if (!isOwner) {
+            vscode.window.showErrorMessage(
+              "You are not authorized to edit this snippet."
+            );
+            return;
+          }
+
+          EditSnippetFormPanel.createOrShow(snippet, extensionContext);
+          break;
       }
     });
   }
 
-  private static getHtml(snippet: any): string {
+  private static getHtml(snippet: any, isOwner: boolean = false): string {
     const languageMap: Record<string, string> = {
       js: "javascript",
       ts: "typescript",
@@ -135,6 +164,9 @@ export class SnippetDetailsPanel {
           <div class="actions">
             <button onclick="copyCode()">📋 Copy Code</button>
             <button onclick="viewOnWeb()">🌐 View on Web</button>
+            ${
+              isOwner ? `<button onclick="edit()">✏️ Edit Snippet</button>` : ""
+            }
           </div>
           <div class="votes">👍 ${snippet.upvotes || 0} | 👎 ${
       snippet.downvotes || 0
@@ -149,6 +181,9 @@ export class SnippetDetailsPanel {
             }
             function viewOnWeb() {
               vscode.postMessage({ command: "viewOnWeb" });
+            }
+            function edit() { 
+              vscode.postMessage({ command: "edit" }); 
             }
           </script>
         </body>

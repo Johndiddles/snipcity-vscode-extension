@@ -27,12 +27,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           vscode.window.showInformationMessage("Code copied to clipboard");
           break;
         case "openSnippet":
-          SnippetDetailsPanel.show(message.snippet);
-          // const doc = await vscode.workspace.openTextDocument({
-          //   content: message.code,
-          //   language: message.language || "plaintext",
-          // });
-          // await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
+          SnippetDetailsPanel.show(message.snippet, this._context);
           break;
         case "addSnippet":
           vscode.commands.executeCommand("snippit.createSnippet");

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { createSnippet } from "./snippets";
 import { ensureAuthenticated } from "./auth";
 import { logger } from "./lib/logger";
+import { LANGUAGES } from "./mockdata/languages";
 
 export class CreateSnippetFormPanel {
   public static currentPanel: CreateSnippetFormPanel | undefined;
@@ -193,19 +194,9 @@ export class CreateSnippetFormPanel {
           <div>
             <label>Language</label>
             <select name="language">
-              <option value="plaintext">Plain Text</option>
-              <option value="javascript">JavaScript</option>
-              <option value="typescript">TypeScript</option>
-              <option value="python">Python</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="json">JSON</option>
-              <option value="bash">Bash</option>
-              <option value="c">C</option>
-              <option value="cpp">C++</option>
-              <option value="java">Java</option>
-              <option value="go">Go</option>
-              <!-- Add more as needed -->
+            ${LANGUAGES.map(
+              (language) => `<option value="${language}">${language}</option>`
+            ).join("")}
             </select>
           </div>
         </div>
