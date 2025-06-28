@@ -10,10 +10,12 @@ export class EditSnippetFormPanel {
   private readonly _extensionUri: vscode.Uri;
   private readonly _extensionContext: vscode.ExtensionContext;
   private _disposables: vscode.Disposable[] = [];
+  private onSubmitSuccess?: () => void;
 
   public static createOrShow(
     snippet: any,
-    extensionContext: vscode.ExtensionContext
+    extensionContext: vscode.ExtensionContext,
+    onSubmitSuccess?: () => void
   ) {
     const column = vscode.window.activeTextEditor
       ? vscode.ViewColumn.Beside
@@ -35,7 +37,8 @@ export class EditSnippetFormPanel {
     EditSnippetFormPanel.currentPanel = new EditSnippetFormPanel(
       panel,
       extensionContext,
-      snippet
+      snippet,
+      onSubmitSuccess
     );
   }
 
@@ -44,12 +47,14 @@ export class EditSnippetFormPanel {
   private constructor(
     panel: vscode.WebviewPanel,
     extensionContext: vscode.ExtensionContext,
-    snippet: any
+    snippet: any,
+    onSubmitSuccess?: () => void
   ) {
     this._panel = panel;
     this._updateSnippet = snippet;
     this._extensionUri = extensionContext.extensionUri;
     this._extensionContext = extensionContext;
+    this.onSubmitSuccess = onSubmitSuccess;
 
     this._panel.webview.html = this.getHtmlForWebview(snippet);
 
@@ -70,10 +75,10 @@ export class EditSnippetFormPanel {
     const data = { ...message.data, id: this._updateSnippet._id };
 
     try {
-      logger("updated code snippet");
       await updateSnippet(this._updateSnippet._id, data);
       vscode.window.showInformationMessage(`Snippet "${data.title}" updated!`);
       vscode.commands.executeCommand("snippit.refreshSidebar");
+      this.onSubmitSuccess?.();
       this.dispose();
     } catch (err: any) {
       vscode.window.showErrorMessage(

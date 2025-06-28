@@ -49,7 +49,6 @@ export async function storeToken(
   context: vscode.ExtensionContext,
   token: string
 ) {
-  logger({ token });
   await vscode.workspace
     .getConfiguration()
     .update(TOKEN_KEY, token, vscode.ConfigurationTarget.Global);
@@ -64,7 +63,6 @@ export async function storeUserDetails({
   email: string;
   id: string;
 }) {
-  logger({ token });
   await vscode.workspace
     .getConfiguration()
     .update(TOKEN_KEY, token, vscode.ConfigurationTarget.Global);

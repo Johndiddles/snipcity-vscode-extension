@@ -9,13 +9,11 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.window.registerUriHandler({
       async handleUri(uri: vscode.Uri) {
-        logger({ uriFromBrowser: uri });
         const params = new URLSearchParams(uri.query);
         const token = params.get("token");
         const email = params.get("email");
         const id = params.get("id");
 
-        logger({ token, email, id });
         if (token && email && id) {
           storeUserDetails({ token, email, id })
             .then(() => {

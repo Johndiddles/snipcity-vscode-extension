@@ -57,7 +57,6 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
     if (!this._view) return;
 
     const signedIn = await isAuthenticated();
-    logger({ signedIn });
     const snippets = await listSnippets();
     const html = this.getHtml(snippets, signedIn);
     this._view.webview.html = html;
