@@ -4,6 +4,15 @@ import { SnippitSidebarProvider } from "./sidebar";
 import { logger } from "./lib/logger";
 import { CreateSnippetFormPanel } from "./CreateSnippetFormPanel";
 
+import * as path from "path";
+import * as dotenv from "dotenv";
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+
+export const API_URL = process.env.API_BASE_URL;
+export const WEB_URL = process.env.WEB_BASE_URL;
+
+logger({ API_URL, WEB_URL });
+
 export function activate(context: vscode.ExtensionContext) {
   const viewProvider = new SnippitSidebarProvider(context);
   context.subscriptions.push(

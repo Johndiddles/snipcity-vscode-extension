@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { logger } from "./lib/logger";
+import { WEB_URL } from "./extension";
 
-const LOGIN_URL = "http://localhost:3000/signin/vscode?from=vscode";
-// const LOGIN_URL = "https://snippit-mu.vercel.app/extension-login?from=vscode";
+const LOGIN_URL = `${WEB_URL}/signin/vscode?from=vscode`;
+
 const TOKEN_KEY = "snipCityToken";
 const EMAIL_KEY = "snipCityEmail";
 const USER_ID_KEY = "snipCityUserId";

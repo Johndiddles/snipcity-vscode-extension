@@ -3,6 +3,7 @@ import { getUserDetails } from "./auth";
 import { EditSnippetFormPanel } from "./EditSnippetFormPanel";
 import { Snippet } from "./types/snippet";
 import { getSnippetById } from "./snippets";
+import { WEB_URL } from "./extension";
 
 export class SnippetDetailsPanel {
   private static currentPanel: vscode.WebviewPanel | null = null;
@@ -35,9 +36,7 @@ export class SnippetDetailsPanel {
           break;
         case "viewOnWeb":
           vscode.env.openExternal(
-            vscode.Uri.parse(
-              `https://snippit-mu.vercel.app/snippets/${snippet._id}`
-            )
+            vscode.Uri.parse(`${WEB_URL}/snippets/${snippet._id}`)
           );
           break;
         case "edit":
