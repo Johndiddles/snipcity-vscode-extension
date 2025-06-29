@@ -1,9 +1,13 @@
 {
-  "name": "snippit-vscode",
-  "publisher": "johndiddles",
+  "name": "snipcity",
+  "publisher": "johndiddles-snipcity",
   "displayName": "SnipCity",
   "description": "Create, search, view and share code snippets from VS Code",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johndiddles/snipcity"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -39,7 +43,7 @@
         {
           "id": "snipCity",
           "title": "SnipCity",
-          "icon": "assets/icon.svg"
+          "icon": "assets/icon.png"
         }
       ]
     },
