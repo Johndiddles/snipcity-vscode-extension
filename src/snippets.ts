@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as vscode from "vscode";
 import { API_URL } from "./extension";
+import { logger } from "./lib/logger";
 
 interface SnippetPayload {
   title: string;
@@ -43,19 +44,33 @@ export async function updateSnippet(id: string, data: SnippetPayload) {
   return response.data;
 }
 
-export async function listSnippets(page = 1): Promise<Snippet[]> {
+interface PaginatedSnippets {
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  itemsPerPage: number;
+  snippets: Snippet[];
+  totalItems: number;
+  totalPages: number;
+}
+
+export async function listSnippets(
+  page: number = 1,
+  limit: number = 20
+): Promise<PaginatedSnippets> {
   const token = vscode.workspace
     .getConfiguration()
     .get<string>("snipCityToken");
   const response = await axios.get(
-    `${API_URL}/snippets?page=${page}&limit=20`,
+    `${API_URL}/snippets?page=${page}&limit=${limit}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     }
   );
-  return response.data.snippets;
+  logger({ response: response.data });
+  return response.data;
 }
 
 export async function getSnippetById(snippetId: string): Promise<Snippet[]> {
