@@ -30,7 +30,19 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           SnippetDetailsPanel.show(message.snippet, this._context);
           break;
         case "addSnippet":
-          vscode.commands.executeCommand("snippit.createSnippet");
+          if (await isAuthenticated()) {
+            vscode.commands.executeCommand("snippit.createSnippet");
+          } else {
+            const choice = await vscode.window.showInformationMessage(
+              "You need to sign in to create a snippet.",
+              "Sign In",
+              "Cancel"
+            );
+            if (choice === "Sign In") {
+              await signIn();
+              this.refresh(); // Refresh sidebar to update auth state
+            }
+          }
           break;
         case "signin":
           await signIn();
