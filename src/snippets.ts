@@ -54,9 +54,11 @@ interface PaginatedSnippets {
   totalPages: number;
 }
 
+export const snippetsLimit = 20;
+
 export async function listSnippets(
   page: number = 1,
-  limit: number = 20
+  limit: number = snippetsLimit
 ): Promise<PaginatedSnippets> {
   const token = vscode.workspace
     .getConfiguration()

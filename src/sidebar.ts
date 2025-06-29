@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { listSnippets } from "./snippets";
+import { listSnippets, snippetsLimit } from "./snippets";
 import { logger } from "./lib/logger";
 import { isAuthenticated, signIn, signOut } from "./auth";
 import { SnippetDetailsPanel } from "./snippetDetailsPanel";
@@ -93,7 +93,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
 
   private async loadMoreSnippets() {
     if (!this._hasMore || !this._view) return;
-
+    logger({ page: this._page });
     this._page += 1;
     const response = await listSnippets(this._page);
 
@@ -104,6 +104,8 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
       command: "appendSnippets",
       snippets: response.snippets,
       hasMore: this._hasMore,
+      page: this._page,
+      limit: snippetsLimit,
     });
   }
 
@@ -297,8 +299,9 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           vscode.postMessage({ command: "addSnippet" });
         });
 
-        function render(snippetData) {
-          const html = snippetData.map((snippet, index) => {
+        function render(snippetData, limit, page = 1) {
+          const html = snippetData.map((snippet, idx) => {
+            const index = (page - 1) * limit + idx;
             const codePreview = snippet.code
               .split("\\n").slice(0, 5).join("\\n")
               .replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -315,8 +318,8 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
                 <div class="description">\${snippet.description || ""}</div>
                 <div class="code-preview">\${codePreview}</div>
                 <div class="buttons">
-                  <button class="copy-btn" data-command="copy" data-index="\${snippets.length + index}">Copy</button>
-                  <button class="view-btn" data-command="view" data-index="\${snippets.length + index}">View full code</button>
+                  <button class="copy-btn" data-command="copy" data-index="\${index}">Copy</button>
+                  <button class="view-btn" data-command="view" data-index="\${index}">View full code</button>
                 </div>
               </div>
             \`;
@@ -342,8 +345,11 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           });
         }
 
+        let isLoading = false;
+
         window.addEventListener("scroll", () => {
-          if (hasMore && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+          if (!isLoading && hasMore && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+            isLoading = true;
             vscode.postMessage({ command: "loadMore" });
           }
         });
@@ -352,12 +358,15 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           const message = event.data;
           if (message.command === "appendSnippets") {
             hasMore = message.hasMore;
+            page = message.page;
+            limit = message.limit;
             snippets = snippets.concat(message.snippets);
-            render(message.snippets);
+            render(message.snippets, limit, page);
+            isLoading = false;
           }
         });
 
-        render(snippets);
+        render(snippets, ${snippetsLimit});
       </script>
     </body>
     </html>
