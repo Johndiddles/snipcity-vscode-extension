@@ -9,6 +9,7 @@ SnipCity is a cross-platform code snippet management system that lets you save, 
 Access your snippets from anywhere using the SnipCity web app: [https://snipcity.vercel.app](https://snipcity.vercel.app)
 
 Your snippets are synchronized across VS Code and the web, allowing you to:
+
 - Access your snippets from any device
 - Share snippets directly from the web
 - Edit snippets on the go
@@ -72,7 +73,8 @@ This extension contributes the following settings:
 
 ## Release Notes
 
-### 0.0.5
+### 0.0.8
+
 - Initial release with core functionality
 - GitHub authentication
 - Snippet creation and browsing
@@ -93,6 +95,7 @@ This extension is licensed under the MIT License - see the LICENSE file for deta
 ## Support
 
 For support, please:
+
 1. Check the [issues](https://github.com/johndiddles/snipcity/issues) page
 2. Create a new issue if your problem isn't listed
 3. Include as much detail as possible about the issue
