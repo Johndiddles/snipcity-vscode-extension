@@ -2,7 +2,7 @@
 
 SnipCity is a cross-platform code snippet management system that lets you save, browse, and manage code snippets across VS Code and the web. With seamless GitHub authentication, rich snippet previews, tagging, copy-to-clipboard, and in-place editing, SnipCity makes organizing and reusing your most valuable code fragments effortless.
 
-![SnipCity Demo](assets/snipcity.png)
+![SnipCity Demo](assets/snipcity.gif)
 
 ## Web Version
 
