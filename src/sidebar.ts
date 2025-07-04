@@ -44,6 +44,10 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           }
           break;
 
+        case "refreshSnippets":
+          this.refresh();
+          break;
+
         case "signin":
           await signIn();
           this.refresh();
@@ -169,6 +173,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
       <style>
         body {
           font-family: sans-serif;
@@ -180,6 +185,14 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           display: flex;
           gap: 8px;
           margin-bottom: 1em;
+          flex-wrap: wrap;
+        }
+        .space-btw {
+          justify-content: space-between;
+        }
+        .snips-actions {
+          display: flex;
+          gap: 8px;
         }
         input[type="text"] {
           flex: 1;
@@ -189,7 +202,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           background: #2e2e2e;
           color: white;
         }
-        .add-btn, .auth-btn {
+        .auth-btn {
           background-color: #16a249;
           color: white;
           border: none;
@@ -197,8 +210,28 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           border-radius: 4px;
           cursor: pointer;
         }
-        .add-btn:hover, .auth-btn:hover {
+        .auth-btn:hover {
           background-color: #169c30;
+        }
+        .add-btn {
+          background-color: #00000000;
+          color: white;
+          border: 1px solid #ffffff;
+          padding: 6px 8px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: 0.2 ease-in-out
+        }
+        .add-btn:hover {
+          background-color: #ffffff1a;
+          color: black;
+          border: 1px solid #ffffff1a;
+        }
+        .sign-out-btn {
+          background-color: #ef4444;
+        }
+        .sign-out-btn:hover {
+          background-color: #dc2626;
         }
         .snippet {
           padding: 0.75em;
@@ -273,10 +306,22 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
       </style>
     </head>
     <body>
+      <div class="toolbar space-btw">
+        <div class="snips-actions">
+          <button class="add-btn" id="refreshSnippets">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+          </button>
+          <button class="add-btn" id="addSnippet">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+          </button>
+        </div>
+        <button class="auth-btn ${
+          authLabel === "Sign Out" ? "sign-out-btn" : ""
+        }" id="authBtn">${authLabel}</button>
+      </div>
+
       <div class="toolbar">
         <input type="text" id="search" placeholder="Search snippets..." />
-        <button class="add-btn" id="addSnippet">+ Add</button>
-        <button class="auth-btn" id="authBtn">${authLabel}</button>
       </div>
 
       <div id="snippet-list"></div>
@@ -297,6 +342,9 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
 
         document.getElementById("addSnippet").addEventListener("click", () => {
           vscode.postMessage({ command: "addSnippet" });
+        });
+        document.getElementById("refreshSnippets").addEventListener("click", () => {
+          vscode.postMessage({ command: "refreshSnippets" });
         });
 
         function render(snippetData, limit, page = 1) {
