@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { listSnippets, snippetsLimit } from "./snippets";
+import { listMySnippets, listSnippets, snippetsLimit } from "./snippets";
 import { logger } from "./lib/logger";
 import { isAuthenticated, signIn, signOut } from "./auth";
 import { SnippetDetailsPanel } from "./snippetDetailsPanel";
@@ -10,6 +10,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
   private _page = 1;
   private _hasMore = true;
   private _snippets: any[] = [];
+  private _mode: "all" | "mine" = "all";
 
   constructor(private readonly _context: vscode.ExtensionContext) {}
 
@@ -25,6 +26,10 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
 
     view.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
+        case "toggleMode":
+          this._mode = message.mode;
+          this.refresh();
+          break;
         case "copy":
           await vscode.env.clipboard.writeText(message.code);
           vscode.window.showInformationMessage("Code copied to clipboard");
@@ -80,7 +85,12 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
     if (!this._view) return;
 
     const signedIn = await isAuthenticated();
-    const response = await listSnippets(this._page);
+    let response;
+    if (this._mode === "mine") {
+      response = await listMySnippets(this._page);
+    } else {
+      response = await listSnippets(this._page);
+    }
 
     this._snippets = response.snippets;
     this._hasMore = response.hasNextPage;
@@ -90,7 +100,8 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
       encodedSnippets,
       signedIn,
       this._hasMore,
-      this._page
+      this._page,
+      this._mode
     );
     this._view.webview.html = html;
   }
@@ -162,7 +173,8 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
     encodedSnippets: string,
     isSignedIn: boolean,
     hasMore: boolean,
-    currentPage: number
+    currentPage: number,
+    mode: "all" | "mine"
   ): string {
     const authLabel = isSignedIn ? "Sign Out" : "Sign In";
     const authCommand = isSignedIn ? "signout" : "signin";
@@ -180,6 +192,32 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
           padding: 0.5em;
           background-color: #1e1e1e;
           color: #d4d4d4;
+        }
+        .sidebar-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 1em;
+          border-bottom: 1px solid #555;
+          border-bottom-left-radius: 4px;
+          border-bottom-right-radius: 4px;
+        }
+        .sidebar-header button {
+          flex-grow: 1;
+          padding: 1em 0.5em;
+          margin: 0;
+          border-radius: 4px;
+          border: none;
+          cursor: pointer;
+          background: #00000000;
+          color: white;
+        }
+        .sidebar-header button:hover {
+          background: #00000040;
+        }
+        .sidebar-header button.active {
+          border: 1px solid #555;
+          border-bottom: none;
         }
         .toolbar {
           display: flex;
@@ -216,7 +254,7 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
         .add-btn {
           background-color: #00000000;
           color: white;
-          border: 1px solid #ffffff;
+          border: 1px solid #444444;
           padding: 6px 8px;
           border-radius: 4px;
           cursor: pointer;
@@ -306,6 +344,14 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
       </style>
     </head>
     <body>
+      <div class="sidebar-header">
+        <button class="${
+          mode === "mine" ? "active" : ""
+        }" id="mySnippets">My Snippets</button>
+        <button class="${
+          mode === "all" ? "active" : ""
+        }" id="allSnippets">All Snippets</button>
+      </div>
       <div class="toolbar space-btw">
         <div class="snips-actions">
           <button class="add-btn" id="refreshSnippets">
@@ -339,6 +385,9 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
         authBtn.addEventListener("click", () => {
           vscode.postMessage({ command: "${authCommand}" });
         });
+
+        document.getElementById("allSnippets").onclick = () => vscode.postMessage({command:"toggleMode", mode:"all"});
+        document.getElementById("mySnippets").onclick = () => vscode.postMessage({command:"toggleMode", mode:"mine"});
 
         document.getElementById("addSnippet").addEventListener("click", () => {
           vscode.postMessage({ command: "addSnippet" });

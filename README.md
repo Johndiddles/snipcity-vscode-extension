@@ -73,12 +73,14 @@ This extension contributes the following settings:
 
 ## Release Notes
 
-### 0.0.9
+### 0.0.13
 
 - Initial release with core functionality
 - GitHub authentication
 - Snippet creation and browsing
 - Basic snippet management
+- Snippet Mode: My Snippets | All Snippets
+- Refresh snippets button
 
 ## Contributing
 

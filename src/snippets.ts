@@ -75,6 +75,25 @@ export async function listSnippets(
   return response.data;
 }
 
+export async function listMySnippets(
+  page: number = 1,
+  limit: number = snippetsLimit
+): Promise<PaginatedSnippets> {
+  const token = vscode.workspace
+    .getConfiguration()
+    .get<string>("snipCityToken");
+  const response = await axios.get(
+    `${API_URL}/profile/snippets?page=${page}&limit=${limit}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  logger({ response: response.data });
+  return response.data;
+}
+
 export async function getSnippetById(snippetId: string): Promise<Snippet[]> {
   const token = vscode.workspace
     .getConfiguration()
