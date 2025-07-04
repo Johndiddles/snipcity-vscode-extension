@@ -7,7 +7,7 @@
   "icon": "assets/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/johndiddles/snipcity"
+    "url": "https://github.com/Johndiddles/snipcity-vscode-extension"
   },
   "engines": {
     "vscode": "^1.80.0"
