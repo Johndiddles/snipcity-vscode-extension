@@ -30,6 +30,11 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       # 🔹 Step 1: Bump version locally (but don’t push yet)
+      - name: Ensure clean git state
+        run: |
+          git add -A
+          git commit -m "chore: prepare for version bump" || echo "No changes to commit"
+
       - name: Bump version
         id: versioning
         run: |
