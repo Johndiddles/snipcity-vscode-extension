@@ -1,0 +1,37 @@
+name: Publish Extension
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      # 🔹 Step 1: Bump version & create tag
+      - name: Bump version and push tag
+        id: versioning
+        run: |
+          # Use npm version to bump (patch/minor/major)
+          VERSION=$(npm version patch -m "Release v%s")
+          git push --follow-tags
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      # 🔹 Step 2: Publish using PAT
+      - name: Publish to VS Code Marketplace
+        run: npx vsce publish -p $VSCE_PAT
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
