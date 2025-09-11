@@ -21,17 +21,26 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # 🔹 Step 1: Bump version & create tag
-      - name: Bump version and push tag
+      - name: Configure Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 🔹 Step 1: Bump version locally (but don’t push yet)
+      - name: Bump version
         id: versioning
         run: |
-          # Use npm version to bump (patch/minor/major)
           VERSION=$(npm version patch -m "Release v%s")
-          git push --follow-tags
           echo "version=$VERSION" >> $GITHUB_ENV
 
-      # 🔹 Step 2: Publish using PAT
+      # 🔹 Step 2: Publish extension
       - name: Publish to VS Code Marketplace
         run: npx vsce publish -p $VSCE_PAT
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      # 🔹 Step 3: Push commit & tag only if publish succeeds
+      - name: Push changes and tags
+        if: success()
+        run: |
+          git push origin HEAD:main --follow-tags
