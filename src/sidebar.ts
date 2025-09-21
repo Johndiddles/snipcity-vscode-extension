@@ -1,5 +1,10 @@
 import * as vscode from "vscode";
-import { listMySnippets, listSnippets, snippetsLimit } from "./snippets";
+import {
+  listMySnippets,
+  listSnippets,
+  PaginatedSnippets,
+  snippetsLimit,
+} from "./snippets";
 import { logger } from "./lib/logger";
 import { isAuthenticated, signIn, signOut } from "./auth";
 import { SnippetDetailsPanel } from "./snippetDetailsPanel";
@@ -92,8 +97,8 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
       response = await listSnippets(this._page);
     }
 
-    this._snippets = response.snippets;
-    this._hasMore = response.hasNextPage;
+    this._snippets = (response as PaginatedSnippets).snippets;
+    this._hasMore = (response as PaginatedSnippets).hasNextPage;
 
     const encodedSnippets = JSON.stringify(this._snippets);
     const html = this.getHtml(
@@ -112,12 +117,15 @@ export class SnippitSidebarProvider implements vscode.WebviewViewProvider {
     this._page += 1;
     const response = await listSnippets(this._page);
 
-    this._snippets = [...this._snippets, ...response.snippets];
-    this._hasMore = response.hasNextPage;
+    this._snippets = [
+      ...this._snippets,
+      ...(response as PaginatedSnippets).snippets,
+    ];
+    this._hasMore = (response as PaginatedSnippets).hasNextPage;
 
     this._view.webview.postMessage({
       command: "appendSnippets",
-      snippets: response.snippets,
+      snippets: (response as PaginatedSnippets).snippets,
       hasMore: this._hasMore,
       page: this._page,
       limit: snippetsLimit,

@@ -44,7 +44,7 @@ export async function updateSnippet(id: string, data: SnippetPayload) {
   return response.data;
 }
 
-interface PaginatedSnippets {
+export interface PaginatedSnippets {
   currentPage: number;
   hasNextPage: boolean;
   hasPrevPage: boolean;
@@ -59,20 +59,25 @@ export const snippetsLimit = 20;
 export async function listSnippets(
   page: number = 1,
   limit: number = snippetsLimit
-): Promise<PaginatedSnippets> {
-  const token = vscode.workspace
-    .getConfiguration()
-    .get<string>("snipCityToken");
-  const response = await axios.get(
-    `${API_URL}/snippets?page=${page}&limit=${limit}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-  logger({ response: response.data });
-  return response.data;
+): Promise<PaginatedSnippets | unknown> {
+  try {
+    const token = vscode.workspace
+      .getConfiguration()
+      .get<string>("snipCityToken");
+    const response = await axios.get(
+      `${API_URL}/snippets?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    logger({ response: response.data });
+    return response.data;
+  } catch (error) {
+    logger(error);
+    return error;
+  }
 }
 
 export async function listMySnippets(
