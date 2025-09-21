@@ -46,6 +46,8 @@ jobs:
         run: npx vsce publish -p $VSCE_PAT
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          WEB_BASE_URL: ${{ secrets.WEB_BASE_URL }}
 
       # 🔹 Step 3: Push commit & tag only if publish succeeds
       - name: Push changes and tags
