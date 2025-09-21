@@ -24,6 +24,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Create .env file
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          WEB_BASE_URL: ${{ secrets.WEB_BASE_URL }}
+        run: |
+          echo "API_BASE_URL=$API_BASE_URL" > .env
+          echo "WEB_BASE_URL=$WEB_BASE_URL" >> .env
+          echo "Created .env file with API_BASE_URL and WEB_BASE_URL"
+
       - name: Configure Git identity
         run: |
           git config user.name "github-actions[bot]"
@@ -46,8 +55,6 @@ jobs:
         run: npx vsce publish -p $VSCE_PAT
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
-          WEB_BASE_URL: ${{ secrets.WEB_BASE_URL }}
 
       # 🔹 Step 3: Push commit & tag only if publish succeeds
       - name: Push changes and tags

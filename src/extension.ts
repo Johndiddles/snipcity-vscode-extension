@@ -1,8 +1,8 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
 import { logger } from "./lib/logger";
-// dotenv.config({ path: path.resolve(__dirname, "../.env") });
-dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+// dotenv.config();
 export const API_URL = process.env.API_BASE_URL;
 export const WEB_URL = process.env.WEB_BASE_URL;
 ``;
