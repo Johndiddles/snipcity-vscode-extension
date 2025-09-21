@@ -3,7 +3,7 @@
   "publisher": "johndiddles-snipcity",
   "displayName": "SnipCity",
   "description": "Create, search, view and share code snippets from VS Code",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "icon": "assets/icon.png",
   "repository": {
     "type": "git",
